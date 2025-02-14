@@ -128,6 +128,40 @@ Answers:
 - 104,793;  202,661;  109,603;  27,678;  35,189
 - 104,838;  199,013;  109,645;  27,688;  35,202
 
+## Answer 3:
+
+```sql
+select
+    case
+        when trip_distance <= 1 then 'Up to 1 mile'
+        when trip_distance > 1 and trip_distance <= 3 then '1~3 miles'
+        when trip_distance > 3 and trip_distance <= 7 then '3~7 miles'
+        when trip_distance > 7 and trip_distance <= 10 then '7~10 miles'
+        else '10+ miles'
+    end as segment,
+    to_char(count(1), '999,999') as num_trips
+from
+    green_tripdata_2019_10
+where
+    lpep_pickup_datetime >= '2019-10-01'
+    and lpep_pickup_datetime < '2019-11-01'
+    and lpep_dropoff_datetime >= '2019-10-01'
+    and lpep_dropoff_datetime < '2019-11-01'
+group by
+    segment
+```
+
+Output:
+"segment"	"num_trips"
+"10+ miles"	"  35,189"
+"1~3 miles"	" 198,924"
+"3~7 miles"	" 109,603"
+"7~10 miles"	"  27,678"
+"Up to 1 mile"	" 104,802"
+
+
+- **104,802;  198,924;  109,603;  27,678;  35,189**
+
 
 ## Question 4. Longest trip for each day
 

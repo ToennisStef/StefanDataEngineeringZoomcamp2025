@@ -27,7 +27,6 @@ def main(params):
     os.system(f'curl {url.strip()} -o {file_name}')
     print('\n')
     
-    # Connect to the database
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
     engine.connect()
 
@@ -58,12 +57,9 @@ def main(params):
         else:
             batch_df = batch
 
-        if 'yellow' in file_name:
-            batch_df.tpep_pickup_datetime = pd.to_datetime(batch_df['tpep_pickup_datetime'])
-            batch_df.tpep_dropoff_datetime = pd.to_datetime(batch_df['tpep_dropoff_datetime'])
-        elif 'green' in file_name:
-            batch_df.lpep_pickup_datetime = pd.to_datetime(batch_df['lpep_pickup_datetime'])
-            batch_df.lpep_dropoff_datetime = pd.to_datetime(batch_df['lpep_dropoff_datetime'])
+        batch_df.tpep_pickup_datetime = pd.to_datetime(batch_df['tpep_pickup_datetime'])
+        batch_df.tpep_dropoff_datetime = pd.to_datetime(batch_df['tpep_dropoff_datetime'])
+        
 
         print(f'inserting batch {count}...')
 
@@ -92,18 +88,5 @@ if __name__ == '__main__':
     parser.add_argument('--url', help='url of the CSV file')
 
     args = parser.parse_args()
-    
-    print(f"user: {args.user}")
-    print(f"password: {args.password}")
-    print(f"host: {args.host}")
-    print(f"port: {args.port}")
-    print(f"db: {args.db}")
-    print(f"tb: {args.tb}")
-    print(f"URL: {args.url}")
-    
-    print("Environment Variables inside the container:")
-    print(f"DATABASE: {os.environ.get('DATABASE')}")
-    print(f"TABLE: {os.environ.get('TABLE')}")
-    print(f"URL: {os.environ.get('URL')}")
-    
+
     main(args)
