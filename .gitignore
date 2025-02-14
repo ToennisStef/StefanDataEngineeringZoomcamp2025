@@ -1,5 +1,6 @@
 # Ignore all csv files and parquet files
 *.csv
 *.parquet
+*.gz
 
 .ipynb_checkpoints/

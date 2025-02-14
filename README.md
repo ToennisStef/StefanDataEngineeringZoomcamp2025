@@ -9,7 +9,6 @@ Welcome to the Stefan Data Engineering Zoomcamp 2025! This project is following 
 
 - [Overview](#overview)
 - [Description](#description)
-- [Module1](#module1)
 - [Prerequisites](#prerequisites)
 - [Usage](#usage)
 - [License](#license)
