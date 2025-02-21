@@ -175,6 +175,18 @@ Tip: For every day, we only care about one single trip with the longest distance
 - 2019-10-26
 - 2019-10-31
 
+## Answer 4:
+
+Used sql-query in pgadmin.
+
+```sql
+SELECT lpep_pickup_datetime FROM public.green_tripdata_2019_10
+WHERE trip_distance = (SELECT MAX(trip_distance) FROM public.green_tripdata_2019_10);
+```
+
+output:
+
+- 2019-10-31 23:23:41
 
 ## Question 5. Three biggest pickup zones
 
@@ -187,6 +199,84 @@ Consider only `lpep_pickup_datetime` when filtering by date.
 - East Harlem North, Morningside Heights
 - Morningside Heights, Astoria Park, East Harlem South
 - Bedford, East Harlem North, Astoria Park
+
+## Answer 5:
+
+For this we need to join the tables `public.TaxiZoneLookup` and `public.green_tripdata_2019_10` 
+Speicifically we need to join the `LocationID` from `public.TaxiZoneLookup` table to both the `PULocationID` and `DOLocationID`in the `public.green_tripdata_2019_10` table.
+
+The final sql-query is:
+
+```sql
+SELECT 
+	trip.total_amount,
+	DATE(trip.lpep_pickup_datetime) AS PUDate,
+	pu_loc."Zone" AS PUZone,
+	do_loc."Zone" AS DOZone
+FROM public.green_tripdata_2019_10 AS trip
+INNER JOIN public."TaxiZoneLookup" AS pu_loc 
+	ON trip."PULocationID" = pu_loc."LocationID"
+INNER JOIN public."TaxiZoneLookup" AS do_loc 
+	ON trip."DOLocationID" = do_loc."LocationID"
+WHERE DATE(trip.lpep_pickup_datetime) = '2019-10-18'
+AND trip.total_amount >= 13.000
+ORDER BY trip.total_amount DESC
+```
+
+and the first output of that query is:
+
+- 950.55	"2019-10-18"	"Morningside Heights"	"Lincoln Square East"
+
+
+Okay this is wrong!
+
+An updated sql-query is this:
+
+```sql
+SELECT 
+	pu_loc."Zone" AS PUZone,
+	COUNT(*) AS tripCounts
+FROM public.green_tripdata_2019_10 AS trip
+INNER JOIN public."TaxiZoneLookup" AS pu_loc 
+	ON trip."PULocationID" = pu_loc."LocationID"
+INNER JOIN public."TaxiZoneLookup" AS do_loc 
+	ON trip."DOLocationID" = do_loc."LocationID"
+WHERE DATE(trip.lpep_pickup_datetime) = '2019-10-18'
+AND trip.total_amount >= 13.000
+GROUP BY pu_loc."Zone"
+ORDER BY tripCounts DESC;
+```
+
+This returns the zone name with the number/counts of trips with an `total_amount` earning above 13,00$ 
+
+The output is:
+
+- "East Harlem North"	582
+- "East Harlem South"	474
+- "Elmhurst"	372
+
+This is apparently also wrong. We needed to sum the total amount for that day. therefor the sql-query is the following
+
+```sql
+SELECT 
+	pu_loc."Zone" AS PUZone,
+	sum(trip.total_amount) as grandsum
+FROM public.green_tripdata_2019_10 AS trip
+INNER JOIN public."TaxiZoneLookup" AS pu_loc 
+	ON trip."PULocationID" = pu_loc."LocationID"
+INNER JOIN public."TaxiZoneLookup" AS do_loc 
+	ON trip."DOLocationID" = do_loc."LocationID"
+WHERE DATE(trip.lpep_pickup_datetime) = '2019-10-18'
+AND trip.total_amount >= 13.000
+GROUP BY pu_loc."Zone"
+ORDER BY grandsum DESC;
+```
+
+and the output is the following: 
+
+- "East Harlem North"	12843.910000000024
+- "East Harlem South"	11317.350000000017
+- "Morningside Heights"	9631.450000000015
 
 
 ## Question 6. Largest tip
@@ -204,6 +294,34 @@ We need the name of the zone, not the ID.
 - East Harlem North
 - East Harlem South
 
+
+## Answer 6: 
+
+We can reuse a lot of the code from Answer 5. Select the Drop off zone and filter for the pick up zone to be "East Harlem North" 
+
+The sql-query is the following:
+
+```sql
+SELECT 
+	do_loc."Zone" AS DOZone,
+	trip.tip_amount AS tips
+FROM public.green_tripdata_2019_10 AS trip
+INNER JOIN public."TaxiZoneLookup" AS pu_loc 
+	ON trip."PULocationID" = pu_loc."LocationID"
+INNER JOIN public."TaxiZoneLookup" AS do_loc 
+	ON trip."DOLocationID" = do_loc."LocationID"
+WHERE pu_loc."Zone" LIKE 'East Harlem North'
+ORDER BY tips DESC;
+```
+
+The output is:
+
+- "JFK Airport"	87.3
+- "Yorkville West"	80.88
+- "East Harlem North"	40
+- "East Harlem North"	35
+
+Therefore the answer is "JFK Airport".
 
 ## Terraform
 

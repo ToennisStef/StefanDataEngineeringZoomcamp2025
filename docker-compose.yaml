@@ -20,16 +20,16 @@ services:
     ports:
       - "8080:80"
 
-  taxi_ingest:
-    container_name: taxi_ingest
-    image: taxi_ingest:v001
-    env_file:
-      - .env
-    command: >
-      --user=root 
-      --password=root 
-      --host=pgdatabase 
-      --port=5432 
-      --db=${DATABASE}
-      --tb=${TABLE}
-      --url=${URL}
+  # taxi_ingest:
+  #   container_name: taxi_ingest
+  #   image: taxi_ingest:v001
+  #   env_file:
+  #     - .env
+  #   command: >
+  #     --user=root 
+  #     --password=root 
+  #     --host=pgdatabase 
+  #     --port=5432 
+  #     --db=${DATABASE}
+  #     --tb=${TABLE}
+  #     --url=${URL}
