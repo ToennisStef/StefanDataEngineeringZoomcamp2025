@@ -4,3 +4,9 @@
 *.gz
 
 .ipynb_checkpoints/
+
+# Ignore all files in the kestra_postgres_data directory
+
+01_Module/ny_taxi_postgres_data/*
+02_Module/nyc_taxi_postgres_data/*
+02_Module/kestra_postgres_data/*
